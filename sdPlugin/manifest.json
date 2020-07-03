@@ -7,6 +7,9 @@
         },
         {
           "Image": "streamdeck-zoom-unmuted"
+        },
+        {
+          "Image": "streamdeck-zoom-closed"
         }
       ],
       "SupportedInMultiActions": false,
@@ -22,6 +25,9 @@
         },
         {
           "Image": "streamdeck-zoom-video-started"
+        },
+        {
+          "Image": "streamdeck-zoom-video-closed"
         }
       ],
       "SupportedInMultiActions": false,
@@ -37,6 +43,9 @@
         },
         {
           "Image": "streamdeck-zoom-share-stop"
+        },
+        {
+          "Image": "streamdeck-zoom-share-closed"
         }
       ],
       "SupportedInMultiActions": false,
@@ -49,6 +58,9 @@
       "States": [
         {
           "Image": "streamdeck-zoom-focus"
+        },
+        {
+          "Image": "streamdeck-zoom-focus-closed"
         }
       ],
       "SupportedInMultiActions": false,
@@ -61,6 +73,9 @@
       "States": [
         {
           "Image": "streamdeck-zoom-leave"
+        },
+        {
+          "Image": "streamdeck-zoom-leave-closed"
         }
       ],
       "SupportedInMultiActions": false,

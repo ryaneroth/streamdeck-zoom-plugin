@@ -63,6 +63,7 @@ char* execAndReturn(const char* command) {
   fp = popen(command, "r");
   if (fp == NULL) {
     printf("Cannot execute command:\n%s\n", command);
+    ESDDebug("Cannot execute command:\n%s\n", command);
     return NULL;
   }
 
@@ -86,23 +87,31 @@ json getZoomStatus() {
   // get Zoom Mute status
   // ESDDebug("APPLESCRIPT_GET_STATUS: %s", APPLESCRIPT_GET_STATUS);
   char* zoomStatus = execAndReturn(
-    "osascript -e 'set zoomStatus to \"closed\"\nset muteStatus to "
-    "\"muted\"\nset videoStatus to \"stopped\"\nset shareStatus to "
-    "\"stopped\"\ntell application \"System Events\"\nif exists (window 1 of "
-    "process \"zoom.us\") then\nset zoomStatus to \"open\"\nend if\nend "
-    "tell\nif (zoomStatus contains \"open\") then\ntell application \"System "
-    "Events\" to tell application process \"zoom.us\"\nif exists (menu item "
-    "\"Mute audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) "
-    "then\nset muteStatus to \"unmuted\"\nelse\nset muteStatus to "
-    "\"muted\"\nend if\nif exists (menu item \"Start Video\" of menu 1 of menu "
-    "bar item \"Meeting\" of menu bar 1) then\nset videoStatus to "
-    "\"stopped\"\nelse\nset videoStatus to \"started\"\nend if\nif exists "
-    "(menu item \"Start Share\" of menu 1 of menu bar item \"Meeting\" of menu "
-    "bar 1) then\nset shareStatus to \"stopped\"\nelse\nset shareStatus to "
-    "\"started\"\nend if\nend tell\nend if\ndo shell script \"echo mute:\" & "
+    "osascript -e 'set zoomStatus to \"closed\"\nset muteStatus to \"disabled\"\n"
+    "set videoStatus to \"disabled\"\nset shareStatus to \"disabled\"\ntell application "
+    "\"System Events\"\nif exists (window 1 of process \"zoom.us\") then\nset zoomStatus "
+    "to \"open\"\ntell application process \"zoom.us\"\nif exists (menu bar item "
+    "\"Meeting\" of menu bar 1) then\nset zoomStatus to \"call\"\nif exists (menu item "
+    "\"Mute audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\nif "
+    "enabled of menu item \"Mute audio\" of menu 1 of menu bar item \"Meeting\" of menu "
+    "bar 1 then\nset muteStatus to \"unmuted\"\nend if\nelse if exists (menu item "
+    "\"Unmute audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\nif "
+    "enabled of menu item \"Unmute audio\" of menu 1 of menu bar item \"Meeting\" of "
+    "menu bar 1 then\nset muteStatus to \"muted\"\nend if\nend if\nif exists (menu item "
+    "\"Start Video\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\nif "
+    "enabled of menu item \"Start Video\" of menu 1 of menu bar item \"Meeting\" of menu "
+    "bar 1 then\nset videoStatus to \"stopped\"\nend if\nelse if exists (menu item "
+    "\"Stop Video\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\nif "
+    "enabled of menu item \"Stop Video\" of menu 1 of menu bar item \"Meeting\" of menu "
+    "bar 1 then\nset videoStatus to \"started\"\nend if\nend if\nif exists (menu item "
+    "\"Start Share\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\nset "
+    "shareStatus to \"stopped\"\nelse\nif exists (menu item \"Stop Share\" of menu 1 of "
+    "menu bar item \"Meeting\" of menu bar 1) then\nset shareStatus to \"started\"\nend "
+    "if\nend if\nend if\nend tell\nend if\nend tell\ndo shell script \"echo mute:\" & "
     "(muteStatus as text) & \",video:\" & (videoStatus as text) & \",zoom:\" & "
     "(zoomStatus as text) & \",share:\" & (shareStatus as text)'");
   std::string status = std::string(zoomStatus);
+  //ESDDebug("Apple script output status - %s", zoomStatus);
 
   std::string statusMute;
   std::string statusVideo;
@@ -112,6 +121,9 @@ json getZoomStatus() {
   if (status.find("zoom:open") != std::string::npos) {
     ESDDebug("Zoom Open!");
     statusZoom = "open";
+  } else if (status.find("zoom:call") != std::string::npos) {
+    ESDDebug("Zoom Call!");
+    statusZoom = "call";
   } else {
     ESDDebug("Zoom Closed!");
     statusZoom = "closed";
@@ -120,25 +132,34 @@ json getZoomStatus() {
   if (status.find("mute:muted") != std::string::npos) {
     ESDDebug("Zoom Muted!");
     statusMute = "muted";
-  } else {
+  } else if (status.find("mute:unmuted") != std::string::npos) {
     ESDDebug("Zoom Unmuted!");
     statusMute = "unmuted";
+  } else {
+    ESDDebug("Zoom Disabled!");
+    statusMute = "disabled";
   }
 
   if (status.find("video:started") != std::string::npos) {
     ESDDebug("Zoom Video Started!");
     statusVideo = "started";
-  } else {
+  } else if (status.find("video:stopped") != std::string::npos) {
     ESDDebug("Zoom Video Stopped!");
     statusVideo = "stopped";
+  } else {
+    ESDDebug("Zoom Video Disabled!");
+    statusVideo = "disabled";
   }
 
   if (status.find("share:started") != std::string::npos) {
     ESDDebug("Zoom Screen Sharing Started!");
     statusShare = "started";
-  } else {
+  } else if (status.find("share:stopped") != std::string::npos) {
     ESDDebug("Zoom Screen Sharing Stopped!");
     statusShare = "stopped";
+  } else {
+    ESDDebug("Zoom Screen Sharing Disabled!");
+    statusShare = "disabled";
   }
 
   ESDDebug("Zoom status: %s", zoomStatus);
@@ -154,7 +175,7 @@ ZoomStreamDeckPlugin::ZoomStreamDeckPlugin() {
 
   // start a timer that updates the current status every 3 seconds
   mTimer = new CallBackTimer();
-  mTimer->start(3000, [this]() { this->UpdateZoomStatus(); });
+  mTimer->start(1500, [this]() { this->UpdateZoomStatus(); });
 }
 
 ZoomStreamDeckPlugin::~ZoomStreamDeckPlugin() {
@@ -166,33 +187,48 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus() {
   if (mConnectionManager != nullptr) {
     std::scoped_lock lock(mVisibleContextsMutex);
 
-    // ESDDebug("UpdateZoomStatus");
+    //ESDDebug("UpdateZoomStatus");
     // get zoom status for mute, video and whether it's open
     json newStatus = getZoomStatus();
-    auto newMuteState = 0;
-    auto newVideoState = 0;
-    auto newShareState = 0;
+    //ESDDebug("CURRENT: Zoom status %s", newStatus.dump().c_str());
+    auto newMuteState = 2;
+    auto newVideoState = 2;
+    auto newShareState = 2;
+    auto newCallState = 1;
+    auto newZoomState = 1;
 
     if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "muted") {
-      // ESDDebug("CURRENT: Zoom muted");
+       //ESDDebug("CURRENT: Zoom muted");
       newMuteState = 0;
-    } else {
-      // ESDDebug("CURRENT: Zoom unmuted");
+    } else if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "unmuted") {
+       //ESDDebug("CURRENT: Zoom unmuted");
       newMuteState = 1;
     }
 
     if (EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "stopped") {
-      // ESDDebug("CURRENT: Zoom video stopped");
+       //ESDDebug("CURRENT: Zoom video stopped");
       newVideoState = 0;
-    } else {
-      // ESDDebug("CURRENT: Zoom video started");
+    } else if (EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "started") {
+       //ESDDebug("CURRENT: Zoom video started");
       newVideoState = 1;
     }
 
     if (EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "stopped") {
       newShareState = 0;
-    } else {
+    } else if (EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "started"){
       newShareState = 1;
+    }
+
+    if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "call") {
+      newCallState = 0;
+    } else {
+      newCallState = 1;
+    }
+
+    if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "closed") {
+      newZoomState = 1;
+    } else {
+      newZoomState = 0;
     }
 
     // sanity check
@@ -217,6 +253,22 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus() {
       const auto button = mButtons[SHARETOGGLE_ACTION_ID];
       // ESDDebug("Video button context: %s", button.context.c_str());
       mConnectionManager->SetState(newShareState, button.context);
+    }
+
+    // sanity check
+    if (mButtons.count(LEAVE_ACTION_ID)) {
+      // update leave button
+      const auto button = mButtons[LEAVE_ACTION_ID];
+      // ESDDebug("Leave button context: %s", button.context.c_str());
+      mConnectionManager->SetState(newCallState, button.context);
+    }
+
+    // sanity check
+    if (mButtons.count(FOCUS_ACTION_ID)) {
+      // update focus button
+      const auto button = mButtons[FOCUS_ACTION_ID];
+      // ESDDebug("Focus button context: %s", button.context.c_str());
+      mConnectionManager->SetState(newZoomState, button.context);
     }
   }
 }
@@ -253,8 +305,9 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
 
     const char* script
       = "osascript -e 'tell application \"zoom.us\"\ntell application \"System "
-        "Events\"\nkeystroke \"a\" using {shift down, command down}\nend "
-        "tell\nend tell'";
+        "Events\" to tell application process \"zoom.us\"\nif exists (menu bar "
+        "item \"Meeting\" of menu bar 1) then\nkeystroke \"a\" using {shift down"
+        ", command down}\nend if\nend tell\nend tell'";
     system(script);
     updateStatus = true;
   } else if (inAction == SHARETOGGLE_ACTION_ID) {
@@ -269,8 +322,9 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
 
     const char* script
       = "osascript -e 'tell application \"zoom.us\"\ntell application \"System "
-        "Events\"\nkeystroke \"s\" using {shift down, command down}\nend "
-        "tell\nend tell'";
+        "Events\" to tell application process \"zoom.us\"\nif exists (menu bar "
+        "item \"Meeting\" of menu bar 1) then\nkeystroke \"s\" using {shift down"
+        ", command down}\nend if\nend tell\nend tell'";
     system(script);
     updateStatus = true;
   } else if (inAction == VIDEOTOGGLE_ACTION_ID) {
@@ -285,8 +339,9 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
 
     const char* script
       = "osascript -e 'tell application \"zoom.us\"\ntell application \"System "
-        "Events\"\nkeystroke \"v\" using {shift down, command down}\nend "
-        "tell\nend tell'";
+        "Events\" to tell application process \"zoom.us\"\nif exists (menu bar "
+        "item \"Meeting\" of menu bar 1) then\nkeystroke \"v\" using {shift down"
+        ", command down}\nend if\nend tell\nend tell'";
     system(script);
     updateStatus = true;
   }
@@ -300,11 +355,11 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   // for all"
   else if (inAction == LEAVE_ACTION_ID) {
     const char* script
-      = "osascript -e 'tell application \"zoom.us\"\nactivate\ntell "
-        "application \"System Events\"\nkeystroke \"w\" using {command "
-        "down}\nend tell\ntell application \"System Events\"\ntell front "
-        "window of (first application process whose frontmost is true)\nclick "
-        "button 1\nend tell\nend tell\nend tell\n'";
+      = "osascript -e 'tell application \"System Events\"\nif exists (menu "
+        "bar item \"Meeting\" of menu bar 1 of application process \"zoom.us\") "
+        "then\ntell application \"zoom.us\" to activate\nkeystroke \"w\" using "
+        "{command down}\ntell front window of (first application process whose "
+        "frontmost is true)\nclick button 1\nend tell\nend if\nend tell'";
     system(script);
   }
 
@@ -314,7 +369,10 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
     json newStatus = getZoomStatus();
 
     if (inAction == MUTETOGGLE_ACTION_ID) {
-      if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "muted") {
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "closed") {
+        ESDDebug("CURRENT: Zoom closed!");
+        newState = 2;
+      } else if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "muted") {
         ESDDebug("CURRENT: Zoom muted!");
         newState = 0;
       } else {
@@ -322,7 +380,10 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
         newState = 1;
       }
     } else if (inAction == VIDEOTOGGLE_ACTION_ID) {
-      if (
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "closed") {
+        ESDDebug("CURRENT: Zoom closed!");
+        newState = 2;
+      } else if (
         EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "stopped") {
         ESDDebug("CURRENT: Zoom video stopped!");
         newState = 0;
@@ -333,7 +394,10 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
     }
 
     else if (inAction == SHARETOGGLE_ACTION_ID) {
-      if (
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "closed") {
+        ESDDebug("CURRENT: Zoom closed!");
+        newState = 2;
+      } else if (
         EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "stopped") {
         ESDDebug("CURRENT: Zoom screen sharing stopped!");
         newState = 0;
@@ -384,7 +448,7 @@ void ZoomStreamDeckPlugin::SendToPlugin(
     mConnectionManager->SendToPropertyInspector(
       inAction, inContext,
       json(
-        {{"event", event}, {"zoomStatus", "open"}, {"muteStatus", "mutes"}}));
+        {{"event", event}, {"zoomStatus", "open"}, {"muteStatus", "muted"}}));
     return;
   }
 }
