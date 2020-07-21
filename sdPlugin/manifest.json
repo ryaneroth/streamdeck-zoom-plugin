@@ -9,7 +9,7 @@
           "Image": "streamdeck-zoom-unmuted"
         },
         {
-          "Image": "streamdeck-zoom-closed"
+          "Image": "streamdeck-zoom-muted-closed"
         }
       ],
       "SupportedInMultiActions": false,
