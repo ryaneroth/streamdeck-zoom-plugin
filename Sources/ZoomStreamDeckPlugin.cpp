@@ -129,37 +129,39 @@ json getZoomStatus() {
     statusZoom = "closed";
   }
 
-  if (status.find("mute:muted") != std::string::npos) {
-    ESDDebug("Zoom Muted!");
-    statusMute = "muted";
-  } else if (status.find("mute:unmuted") != std::string::npos) {
-    ESDDebug("Zoom Unmuted!");
-    statusMute = "unmuted";
-  } else {
-    ESDDebug("Zoom Disabled!");
-    statusMute = "disabled";
-  }
-
-  if (status.find("video:started") != std::string::npos) {
-    ESDDebug("Zoom Video Started!");
-    statusVideo = "started";
-  } else if (status.find("video:stopped") != std::string::npos) {
-    ESDDebug("Zoom Video Stopped!");
-    statusVideo = "stopped";
-  } else {
-    ESDDebug("Zoom Video Disabled!");
+  // set mute, video, and sharing to disabled when there's no call
+  if (statusZoom != "call") {
+    ESDDebug("Zoom closed!");
+    statusMute  = "disabled";
     statusVideo = "disabled";
-  }
-
-  if (status.find("share:started") != std::string::npos) {
-    ESDDebug("Zoom Screen Sharing Started!");
-    statusShare = "started";
-  } else if (status.find("share:stopped") != std::string::npos) {
-    ESDDebug("Zoom Screen Sharing Stopped!");
-    statusShare = "stopped";
-  } else {
-    ESDDebug("Zoom Screen Sharing Disabled!");
     statusShare = "disabled";
+  }
+  else
+  {
+    // if there is a call, determine the mute, video, and share status
+    if (status.find("mute:muted") != std::string::npos) {
+      ESDDebug("Zoom Muted!");
+      statusMute = "muted";
+    } else if (status.find("mute:unmuted") != std::string::npos) {
+      ESDDebug("Zoom Unmuted!");
+      statusMute = "unmuted";
+    }
+
+    if (status.find("video:started") != std::string::npos) {
+      ESDDebug("Zoom Video Started!");
+      statusVideo = "started";
+    } else if (status.find("video:stopped") != std::string::npos) {
+      ESDDebug("Zoom Video Stopped!");
+      statusVideo = "stopped";
+    }
+
+    if (status.find("share:started") != std::string::npos) {
+      ESDDebug("Zoom Screen Sharing Started!");
+      statusShare = "started";
+    } else if (status.find("share:stopped") != std::string::npos) {
+      ESDDebug("Zoom Screen Sharing Stopped!");
+      statusShare = "stopped";
+    }
   }
 
   ESDDebug("Zoom status: %s", zoomStatus);
@@ -191,44 +193,54 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus() {
     // get zoom status for mute, video and whether it's open
     json newStatus = getZoomStatus();
     //ESDDebug("CURRENT: Zoom status %s", newStatus.dump().c_str());
+    // Status images: 0 = active, 1 = cross, 2 = disabled
     auto newMuteState = 2;
     auto newVideoState = 2;
     auto newShareState = 2;
-    auto newCallState = 1;
-    auto newZoomState = 1;
+    auto newLeaveState = 1;
+    auto newFocusState = 1;
 
-    if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "muted") {
-       //ESDDebug("CURRENT: Zoom muted");
-      newMuteState = 0;
-    } else if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "unmuted") {
-       //ESDDebug("CURRENT: Zoom unmuted");
-      newMuteState = 1;
-    }
-
-    if (EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "stopped") {
-       //ESDDebug("CURRENT: Zoom video stopped");
-      newVideoState = 0;
-    } else if (EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "started") {
-       //ESDDebug("CURRENT: Zoom video started");
-      newVideoState = 1;
-    }
-
-    if (EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "stopped") {
-      newShareState = 0;
-    } else if (EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "started"){
-      newShareState = 1;
-    }
-
-    if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "call") {
-      newCallState = 0;
-    } else {
-      newCallState = 1;
-    }
-
+    // set mute, video, sharing, and focus to disabled when Zoom is closed
     if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "closed") {
-      newZoomState = 1;
-    } else {
-      newZoomState = 0;
+      newMuteState  = 2;
+      newVideoState = 2;
+      newShareState = 2;
+      newLeaveState = 1;
+      newFocusState = 1;
+    }
+    else if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "open") {
+      // set mute, video, and sharing to disabled and focus to enabled when there's no call
+      newFocusState = 0;
+    }
+    else
+    {
+      // if there is a call, determine the mute, video, and share status and enable both focus and leave
+
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "muted") {
+        //ESDDebug("CURRENT: Zoom muted");
+        newMuteState = 0;
+      } else if (EPLJSONUtils::GetStringByName(newStatus, "statusMute") == "unmuted") {
+        //ESDDebug("CURRENT: Zoom unmuted");
+        newMuteState = 1;
+      }
+
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "stopped") {
+        //ESDDebug("CURRENT: Zoom video stopped");
+        newVideoState = 0;
+      } else if (EPLJSONUtils::GetStringByName(newStatus, "statusVideo") == "started") {
+        //ESDDebug("CURRENT: Zoom video started");
+        newVideoState = 1;
+      }
+
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "stopped") {
+        newShareState = 0;
+      } else if (EPLJSONUtils::GetStringByName(newStatus, "statusShare") == "started"){
+        newShareState = 1;
+      }
+
+      // in a call, always have leave and focus enabled
+      newLeaveState = 0;
+      newFocusState = 0;
     }
 
     // sanity check
@@ -260,7 +272,7 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus() {
       // update leave button
       const auto button = mButtons[LEAVE_ACTION_ID];
       // ESDDebug("Leave button context: %s", button.context.c_str());
-      mConnectionManager->SetState(newCallState, button.context);
+      mConnectionManager->SetState(newLeaveState, button.context);
     }
 
     // sanity check
@@ -268,7 +280,7 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus() {
       // update focus button
       const auto button = mButtons[FOCUS_ACTION_ID];
       // ESDDebug("Focus button context: %s", button.context.c_str());
-      mConnectionManager->SetState(newZoomState, button.context);
+      mConnectionManager->SetState(newFocusState, button.context);
     }
   }
 }
