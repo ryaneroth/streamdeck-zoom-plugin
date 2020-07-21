@@ -12,7 +12,7 @@
           "Image": "streamdeck-zoom-muted-closed"
         }
       ],
-      "SupportedInMultiActions": false,
+      "SupportedInMultiActions": true,
       "Icon": "streamdeck-zoom-unmuted",
       "Name": "Mute Toggle",
       "Tooltip": "Toggle Zoom Mute Status",
@@ -30,7 +30,7 @@
           "Image": "streamdeck-zoom-video-closed"
         }
       ],
-      "SupportedInMultiActions": false,
+      "SupportedInMultiActions": true,
       "Icon": "streamdeck-zoom-video-started",
       "Name": "Video Toggle",
       "Tooltip": "Toggle Zoom Video",
@@ -48,7 +48,7 @@
           "Image": "streamdeck-zoom-share-closed"
         }
       ],
-      "SupportedInMultiActions": false,
+      "SupportedInMultiActions": true,
       "Icon": "streamdeck-zoom-share-start",
       "Name": "Share Toggle",
       "Tooltip": "Bring up the share screen window, or stop sharing",
@@ -63,7 +63,7 @@
           "Image": "streamdeck-zoom-focus-closed"
         }
       ],
-      "SupportedInMultiActions": false,
+      "SupportedInMultiActions": true,
       "Icon": "streamdeck-zoom-focus",
       "Name": "Focus",
       "Tooltip": "Bring the Zoom window to the front",
@@ -78,7 +78,7 @@
           "Image": "streamdeck-zoom-leave-closed"
         }
       ],
-      "SupportedInMultiActions": false,
+      "SupportedInMultiActions": true,
       "Icon": "streamdeck-zoom-leave",
       "Name": "Leave Meeting",
       "Tooltip": "Leave an active meeting. If you're the host, this ends the meeting.",
