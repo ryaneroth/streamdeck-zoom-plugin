@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(com.lostdomain.zoom.sdPlugin VERSION 1.0)
+project(com.lostdomain.zoom.sdPlugin VERSION 2.0)
 
 set(
   CMAKE_INSTALL_PREFIX

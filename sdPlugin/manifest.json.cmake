@@ -85,8 +85,9 @@
       "UUID": "com.lostdomain.zoom.leave"
     }
   ],
-  "Author": "Martijn Smit",
+  "CodePath": "sdzoomplugin.exe",
   "CodePathMac": "sdzoomplugin",
+  "Author": "Martijn Smit",
   "Description": "Control your Zoom meetings.",
   "Name": "Zoom Plugin",
   "Category": "Zoom",
@@ -98,6 +99,10 @@
     {
       "Platform": "mac",
       "MinimumVersion": "10.13"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion" : "8"
     }
   ],
   "SDKVersion": 2,
