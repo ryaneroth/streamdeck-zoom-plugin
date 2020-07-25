@@ -1,5 +1,6 @@
 // Martijn Smit <martijn@lostdomain.org / @smitmartijn>
 #include "ZoomStreamDeckPlugin.h"
+#include <StreamDeckSDK/ESDLogger.h>
 
 char *execAndReturn(const char *command)
 {
