@@ -15,6 +15,10 @@ void osToggleZoomShare();
 void osToggleZoomVideo();
 void osLeaveZoomMeeting();
 void osFocusZoomWindow();
+void osToggleZoomRecordCloud();
+void osToggleZoomRecordLocal();
+void osMuteAll();
+void osUnmuteAll();
 
 class ZoomStreamDeckPlugin : public ESDBasePlugin
 {
