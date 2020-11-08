@@ -154,13 +154,13 @@
   "CodePath": "sdzoomplugin.exe",
   "CodePathMac": "sdzoomplugin",
   "Author": "Martijn Smit",
-  "Description": "Control your Zoom meetings.",
+  "Description": "Control your Zoom meetings; easily mute yourself, start your video, share, record, quickly leave the meeting, and more.",
   "URL": "https://lostdomain.org/stream-deck-plugin-for-zoom/",
   "Name": "Zoom Plugin",
   "Category": "Zoom",
   "CategoryIcon": "video-camera",
   "PropertyInspectorPath": "propertyinspector/index.html",
-  "Icon": "video-camera",
+  "Icon": "video-camera-plugin",
   "Version": "${CMAKE_PROJECT_VERSION}",
   "OS": [
     {
