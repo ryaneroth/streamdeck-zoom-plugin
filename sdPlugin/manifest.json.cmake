@@ -13,7 +13,7 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Icon": "streamdeck-zoom-unmuted",
+      "Icon": "streamdeck-zoom-muted-actionicon",
       "Name": "Mute Toggle",
       "Tooltip": "Toggle Zoom Mute Status",
       "UUID": "com.lostdomain.zoom.mutetoggle"
@@ -31,7 +31,7 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Icon": "streamdeck-zoom-video-started",
+      "Icon": "streamdeck-zoom-video-actionicon",
       "Name": "Video Toggle",
       "Tooltip": "Toggle Zoom Video",
       "UUID": "com.lostdomain.zoom.videotoggle"
@@ -49,7 +49,7 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Icon": "streamdeck-zoom-share-start",
+      "Icon": "streamdeck-zoom-share-actionicon",
       "Name": "Share Toggle",
       "Tooltip": "Bring up the share screen window, or stop sharing",
       "UUID": "com.lostdomain.zoom.sharetoggle"
@@ -64,7 +64,7 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Icon": "streamdeck-zoom-focus",
+      "Icon": "streamdeck-zoom-focus-actionicon",
       "Name": "Focus",
       "Tooltip": "Bring the Zoom window to the front",
       "UUID": "com.lostdomain.zoom.focus"
@@ -79,7 +79,7 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Icon": "streamdeck-zoom-leave",
+      "Icon": "streamdeck-zoom-leave-actionicon",
       "Name": "Leave Meeting",
       "Tooltip": "Leave an active meeting. If you're the host, this ends the meeting.",
       "UUID": "com.lostdomain.zoom.leave"
@@ -89,6 +89,7 @@
   "CodePathMac": "sdzoomplugin",
   "Author": "Martijn Smit",
   "Description": "Control your Zoom meetings.",
+  "URL": "https://lostdomain.org/stream-deck-plugin-for-zoom/",
   "Name": "Zoom Plugin",
   "Category": "Zoom",
   "CategoryIcon": "video-camera",
