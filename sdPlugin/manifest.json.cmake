@@ -169,7 +169,7 @@
     },
     {
       "Platform": "windows",
-      "MinimumVersion" : "8"
+      "MinimumVersion" : "10"
     }
   ],
   "SDKVersion": 2,
