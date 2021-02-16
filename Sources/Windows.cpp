@@ -403,3 +403,8 @@ void osUnmuteAll()
   keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
   keybd_event(0x4D, 0, KEYEVENTF_KEYUP, 0); // virtual key code for 'M'
 }
+
+void osZoomCustomShortcut(std::string shortcut)
+{
+  // not supported yet
+}

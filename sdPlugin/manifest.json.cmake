@@ -158,6 +158,22 @@
       "Tooltip": "Mute All Participants",
       "UUID": "com.lostdomain.zoom.muteall",
       "PropertyInspectorPath": "propertyinspector/index-mute-all.html"
+    },
+    {
+      "States": [
+        {
+          "Image": "streamdeck-zoom-customshortcut"
+        },
+        {
+          "Image": "streamdeck-zoom-customshortcut-disabled"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Icon": "streamdeck-zoom-customshortcut-actionicon",
+      "Name": "Custom Shortcut",
+      "Tooltip": "Add a custom shortcut to do anything that Zoom supports",
+      "UUID": "com.lostdomain.zoom.customshortcut",
+      "PropertyInspectorPath": "propertyinspector/index-customshortcut.html"
     }
   ],
   "CodePath": "sdzoomplugin.exe",
