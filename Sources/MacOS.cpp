@@ -330,3 +330,76 @@ void osUnmuteAll()
   //ESDDebug(script.c_str());
   system(script.c_str());
 }
+
+
+void osZoomCustomShortcut(std::string shortcut)
+{
+  // build the apple script based on the incoming shortcut. Modifiers should always be first, so first check for mod keys, then move on to the key
+  std::string s = shortcut;
+  std::string delimiter = "+";
+
+  /*
+    We want to build something like this:
+
+    tell application "zoom.us" to activate
+    tell application "zoom.us"
+      tell application "System Events" to tell application process "zoom.us"
+        keystroke "v" using {shift down, command down}
+      end tell
+    end tell
+  */
+
+  std::string as_modifiers = "";
+  std::string as_key       = "";
+  // "explode" the shortcut using '+' as the delimiter, by finding the first instance of the delimiter, substr()'ing that part and then deleting the first part and move on
+  size_t pos = 0;
+  std::string token;
+  while ((pos = s.find(delimiter)) != std::string::npos)
+  {
+    token = s.substr(0, pos);
+    ESDDebug("Token: %s", token.c_str());
+    ESDDebug("s: %s", s.c_str());
+    s.erase(0, pos + delimiter.length());
+    ESDDebug("s: %s", s.c_str());
+
+
+    if(token == "shift") {
+      as_modifiers += "shift down, ";
+    }
+    else if(token == "command") {
+      as_modifiers += "command down, ";
+    }
+    else if(token == "control") {
+      as_modifiers += "control down, ";
+    }
+    else if(token == "option") {
+      as_modifiers += "option down, ";
+    }
+    else {
+      // regular key!
+      // we're assuming that nothing comes after the key, which it shouldn't, so we might as well break
+      break;
+    }
+  }
+
+  // the leftover will be the key itself
+  as_key = s;
+  // convert string to upper case
+  std::for_each(as_key.begin(), as_key.end(), [](char & c){
+    c = ::tolower(c);
+  });
+
+  // remove the last ", " from the modifiers string
+  as_modifiers = as_modifiers.substr(0, as_modifiers.size()-2);
+
+
+  const std::string script = "osascript -e '"
+                       "tell application \"zoom.us\" to activate\n"
+                       "tell application \"zoom.us\"\n"
+                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                       "    keystroke \""+as_key+"\" using {"+as_modifiers+"}\n"
+                       "  end tell\n"
+                       "end tell'";
+  ESDDebug(script.c_str());
+  system(script.c_str());
+}

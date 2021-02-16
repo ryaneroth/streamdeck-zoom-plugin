@@ -19,6 +19,7 @@ void osToggleZoomRecordCloud();
 void osToggleZoomRecordLocal();
 void osMuteAll();
 void osUnmuteAll();
+void osZoomCustomShortcut(std::string shortcut);
 
 class ZoomStreamDeckPlugin : public ESDBasePlugin
 {

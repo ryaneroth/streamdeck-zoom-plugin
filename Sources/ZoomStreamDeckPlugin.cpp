@@ -19,6 +19,7 @@
 #define RECORDLOCALTOGGLE_ACTION_ID "com.lostdomain.zoom.recordlocaltoggle"
 #define MUTEALL_ACTION_ID "com.lostdomain.zoom.muteall"
 #define UNMUTEALL_ACTION_ID "com.lostdomain.zoom.unmuteall"
+#define CUSTOMSHORTCUT_ACTION_ID "com.lostdomain.zoom.customshortcut"
 
 std::string m_zoomMenuMeeting = "Meeting";
 std::string m_zoomMenuMuteAudio = "Mute audio";
@@ -369,6 +370,15 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus()
       // ESDDebug("Record button context: %s", button.context.c_str());
       mConnectionManager->SetState(newUnmuteAllState, button.context);
     }
+
+    // sanity check - is the button added?
+    if (mButtons.count(CUSTOMSHORTCUT_ACTION_ID))
+    {
+      // update unmute all button
+      const auto button = mButtons[CUSTOMSHORTCUT_ACTION_ID];
+      // ESDDebug("Record button context: %s", button.context.c_str());
+      mConnectionManager->SetState(newUnmuteAllState, button.context);
+    }
   }
 }
 
@@ -587,6 +597,16 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
     osUnmuteAll();
   }
 
+  else if(inAction == CUSTOMSHORTCUT_ACTION_ID)
+  {
+    std::string zoomCustomShortcut = EPLJSONUtils::GetStringByName(jsonSettings, "zoomCustomShortcut");
+
+    // sanity check
+    if(!zoomCustomShortcut.empty()) {
+      osZoomCustomShortcut(zoomCustomShortcut);
+    }
+  }
+
   if (updateStatus)
   {
     UpdateZoomStatus();
@@ -653,13 +673,6 @@ void ZoomStreamDeckPlugin::DidReceiveSettings(
 {
   ESDDebug("DidReceiveSettings");
   ESDDebug(EPLJSONUtils::GetString(inPayload).c_str());
-
-  json settingsJson;
-  EPLJSONUtils::GetObjectByName(inPayload, "settings", settingsJson);
-
-  const auto newZoomShortcut = EPLJSONUtils::GetStringByName(settingsJson, "zoomShortcut");
-  ESDDebug("newZoomShortcut:");
-  ESDDebug(newZoomShortcut.c_str());
 
   WillAppearForAction(inAction, inContext, inPayload, inDeviceID);
 }
