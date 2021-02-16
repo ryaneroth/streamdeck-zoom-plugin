@@ -20,6 +20,28 @@
 #define MUTEALL_ACTION_ID "com.lostdomain.zoom.muteall"
 #define UNMUTEALL_ACTION_ID "com.lostdomain.zoom.unmuteall"
 
+std::string m_zoomMenuMeeting = "Meeting";
+std::string m_zoomMenuMuteAudio = "Mute audio";
+std::string m_zoomMenuUnmuteAudio = "Unmute audio";
+
+std::string m_zoomMenuStartVideo = "Start Video";
+std::string m_zoomMenuStopVideo = "Stop Video";
+
+std::string m_zoomMenuStartShare = "Start Share";
+std::string m_zoomMenuStopShare = "Stop Share";
+
+std::string m_zoomMenuStartRecordToCloud = "Record to the Cloud";
+std::string m_zoomMenuStopRecordToCloud = "Stop Recording";
+std::string m_zoomMenuStartRecord = "Record";
+std::string m_zoomMenuStartRecordLocal = "Record on this Computer";
+std::string m_zoomMenuStopRecordLocal = "Stop Recording";
+
+std::string m_zoomMenuWindow = "Window";
+std::string m_zoomMenuClose = "Close";
+
+std::string m_zoomMenuMuteAll = "Mute All";
+std::string m_zoomMenuUnmuteAll = "Ask All To Unmute";
+
 class CallBackTimer
 {
 public:
@@ -153,7 +175,7 @@ json getZoomStatus()
     }
   }
 
-  //ESDDebug("Zoom status: %s", status);
+  //ESDDebug("Zoom status: %s", status.c_str());
 
   return json({{"statusZoom", statusZoom},
                {"statusMute", statusMute},
@@ -368,12 +390,28 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   ESDDebug("Key Up: %s", inPayload.dump().c_str());
   std::scoped_lock lock(mVisibleContextsMutex);
 
+  json jsonSettings;
+  EPLJSONUtils::GetObjectByName(inPayload, "settings", jsonSettings);
+
   const auto state = EPLJSONUtils::GetIntByName(inPayload, "state");
   bool updateStatus = false;
   auto newState = 0;
 
   if (inAction == MUTETOGGLE_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuMuteAudio = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMuteAudio");
+    std::string zoomMenuUnmuteAudio = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuUnmuteAudio");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuMuteAudio.empty())
+      m_zoomMenuMuteAudio = zoomMenuMuteAudio;
+
+    if (!zoomMenuUnmuteAudio.empty())
+      m_zoomMenuUnmuteAudio = zoomMenuUnmuteAudio;
+
     // state == 0 == want to be muted
     if (state != 0)
     {
@@ -390,6 +428,19 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   }
   else if (inAction == SHARETOGGLE_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuStartShare = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStartShare");
+    std::string zoomMenuStopShare = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStopShare");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuStartShare.empty())
+      m_zoomMenuStartShare = zoomMenuStartShare;
+
+    if (!zoomMenuStopShare.empty())
+      m_zoomMenuStopShare = zoomMenuStopShare;
+
     // state == 0 == want to share
     if (state != 0)
     {
@@ -406,6 +457,19 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   }
   else if (inAction == VIDEOTOGGLE_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuStartVideo = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStartVideo");
+    std::string zoomMenuStopVideo = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStopVideo");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuStartVideo.empty())
+      m_zoomMenuStartVideo = zoomMenuStartVideo;
+
+    if (!zoomMenuStopVideo.empty())
+      m_zoomMenuStopVideo = zoomMenuStopVideo;
+
     // state == 0 == want to be with video on
     if (state != 0)
     {
@@ -430,6 +494,15 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   // for all"
   else if (inAction == LEAVE_ACTION_ID)
   {
+    std::string zoomMenuWindow = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuWindow");
+    std::string zoomMenuClose = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuClose");
+
+    if (!zoomMenuWindow.empty())
+      m_zoomMenuWindow = zoomMenuWindow;
+
+    if (!zoomMenuClose.empty())
+      m_zoomMenuClose = zoomMenuClose;
+
     ESDDebug("Leaving Zoom meeting!");
     osLeaveZoomMeeting();
   }
@@ -437,6 +510,23 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   // toggles cloud recording
   else if (inAction == RECORDCLOUDTOGGLE_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuStartRecordToCloud = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStartRecordToCloud");
+    std::string zoomMenuStopRecordToCloud = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStopRecordToCloud");
+    std::string zoomMenuStartRecord = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStartRecord");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuStartRecordToCloud.empty())
+      m_zoomMenuStartRecordToCloud = zoomMenuStartRecordToCloud;
+
+    if (!zoomMenuStopRecordToCloud.empty())
+      m_zoomMenuStopRecordToCloud = zoomMenuStopRecordToCloud;
+
+    if (!zoomMenuStartRecord.empty())
+      m_zoomMenuStartRecord = zoomMenuStartRecord;
+
     ESDDebug("Toggling Recording to the Cloud");
     osToggleZoomRecordCloud();
   }
@@ -444,6 +534,23 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   // toggles local recording
   else if (inAction == RECORDLOCALTOGGLE_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuStartRecordLocal = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStartRecordLocal");
+    std::string zoomMenuStopRecordLocal = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStopRecordLocal");
+    std::string zoomMenuStartRecord = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuStartRecord");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuStartRecordLocal.empty())
+      m_zoomMenuStartRecordLocal = zoomMenuStartRecordLocal;
+
+    if (!zoomMenuStopRecordLocal.empty())
+      m_zoomMenuStopRecordLocal = zoomMenuStopRecordLocal;
+
+    if (!zoomMenuStartRecord.empty())
+      m_zoomMenuStartRecord = zoomMenuStartRecord;
+
     ESDDebug("Toggling Recording Locally");
     osToggleZoomRecordLocal();
   }
@@ -451,6 +558,15 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   // muting all partitipants in a group meeting
   else if (inAction == MUTEALL_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuMuteAll = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMuteAll");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuMuteAll.empty())
+      m_zoomMenuMuteAll = zoomMenuMuteAll;
+
     ESDDebug("Muting all Participants");
     osMuteAll();
   }
@@ -458,6 +574,15 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
   // toggles local recording
   else if (inAction == UNMUTEALL_ACTION_ID)
   {
+    std::string zoomMenuMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuMeeting");
+    std::string zoomMenuUnmuteAll = EPLJSONUtils::GetStringByName(jsonSettings, "zoomMenuUnmuteAll");
+
+    if (!zoomMenuMeeting.empty())
+      m_zoomMenuMeeting = zoomMenuMeeting;
+
+    if (!zoomMenuUnmuteAll.empty())
+      m_zoomMenuUnmuteAll = zoomMenuUnmuteAll;
+
     ESDDebug("Asking all Participants to Unmute");
     osUnmuteAll();
   }
@@ -499,19 +624,7 @@ void ZoomStreamDeckPlugin::SendToPlugin(
     const json &inPayload,
     const std::string &inDeviceID)
 {
-  json outPayload;
-
-  const auto event = EPLJSONUtils::GetStringByName(inPayload, "event");
-  ESDDebug("Received event %s", event.c_str());
-
-  if (event == "getDeviceList")
-  {
-    mConnectionManager->SendToPropertyInspector(
-        inAction, inContext,
-        json(
-            {{"event", event}, {"zoomStatus", "open"}, {"muteStatus", "muted"}}));
-    return;
-  }
+  // Nothing to do
 }
 
 void ZoomStreamDeckPlugin::DeviceDidConnect(
@@ -528,6 +641,8 @@ void ZoomStreamDeckPlugin::DeviceDidDisconnect(const std::string &inDeviceID)
 
 void ZoomStreamDeckPlugin::DidReceiveGlobalSettings(const json &inPayload)
 {
+  ESDDebug("DidReceiveGlobalSettings");
+  ESDDebug(EPLJSONUtils::GetString(inPayload).c_str());
 }
 
 void ZoomStreamDeckPlugin::DidReceiveSettings(
@@ -536,5 +651,15 @@ void ZoomStreamDeckPlugin::DidReceiveSettings(
     const json &inPayload,
     const std::string &inDeviceID)
 {
+  ESDDebug("DidReceiveSettings");
+  ESDDebug(EPLJSONUtils::GetString(inPayload).c_str());
+
+  json settingsJson;
+  EPLJSONUtils::GetObjectByName(inPayload, "settings", settingsJson);
+
+  const auto newZoomShortcut = EPLJSONUtils::GetStringByName(settingsJson, "zoomShortcut");
+  ESDDebug("newZoomShortcut:");
+  ESDDebug(newZoomShortcut.c_str());
+
   WillAppearForAction(inAction, inContext, inPayload, inDeviceID);
 }
