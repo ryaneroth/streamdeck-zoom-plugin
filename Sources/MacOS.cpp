@@ -357,10 +357,10 @@ void osZoomCustomShortcut(std::string shortcut)
   while ((pos = s.find(delimiter)) != std::string::npos)
   {
     token = s.substr(0, pos);
-    ESDDebug("Token: %s", token.c_str());
-    ESDDebug("s: %s", s.c_str());
+    //ESDDebug("Token: %s", token.c_str());
+    //ESDDebug("s: %s", s.c_str());
     s.erase(0, pos + delimiter.length());
-    ESDDebug("s: %s", s.c_str());
+    //ESDDebug("s: %s", s.c_str());
 
 
     if(token == "shift") {
@@ -392,7 +392,6 @@ void osZoomCustomShortcut(std::string shortcut)
   // remove the last ", " from the modifiers string
   as_modifiers = as_modifiers.substr(0, as_modifiers.size()-2);
 
-
   const std::string script = "osascript -e '"
                        "tell application \"zoom.us\" to activate\n"
                        "tell application \"zoom.us\"\n"
@@ -400,6 +399,6 @@ void osZoomCustomShortcut(std::string shortcut)
                        "    keystroke \""+as_key+"\" using {"+as_modifiers+"}\n"
                        "  end tell\n"
                        "end tell'";
-  ESDDebug(script.c_str());
+  //ESDDebug(script.c_str());
   system(script.c_str());
 }
