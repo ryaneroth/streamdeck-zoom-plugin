@@ -16,7 +16,8 @@
       "Icon": "streamdeck-zoom-muted-actionicon",
       "Name": "Mute Toggle",
       "Tooltip": "Toggle Zoom Mute Status",
-      "UUID": "com.lostdomain.zoom.mutetoggle"
+      "UUID": "com.lostdomain.zoom.mutetoggle",
+      "PropertyInspectorPath": "propertyinspector/index-mute.html"
     },
     {
       "States": [
@@ -34,7 +35,8 @@
       "Icon": "streamdeck-zoom-video-actionicon",
       "Name": "Video Toggle",
       "Tooltip": "Toggle Zoom Video",
-      "UUID": "com.lostdomain.zoom.videotoggle"
+      "UUID": "com.lostdomain.zoom.videotoggle",
+      "PropertyInspectorPath": "propertyinspector/index-video.html"
     },
     {
       "States": [
@@ -52,7 +54,8 @@
       "Icon": "streamdeck-zoom-share-actionicon",
       "Name": "Share Toggle",
       "Tooltip": "Bring up the share screen window, or stop sharing",
-      "UUID": "com.lostdomain.zoom.sharetoggle"
+      "UUID": "com.lostdomain.zoom.sharetoggle",
+      "PropertyInspectorPath": "propertyinspector/index-share.html"
     },
     {
       "States": [
@@ -67,7 +70,8 @@
       "Icon": "streamdeck-zoom-focus-actionicon",
       "Name": "Focus",
       "Tooltip": "Bring the Zoom window to the front",
-      "UUID": "com.lostdomain.zoom.focus"
+      "UUID": "com.lostdomain.zoom.focus",
+      "PropertyInspectorPath": "propertyinspector/index.html"
     },
     {
       "States": [
@@ -82,7 +86,8 @@
       "Icon": "streamdeck-zoom-leave-actionicon",
       "Name": "Leave Meeting",
       "Tooltip": "Leave an active meeting. If you're the host, this ends the meeting.",
-      "UUID": "com.lostdomain.zoom.leave"
+      "UUID": "com.lostdomain.zoom.leave",
+      "PropertyInspectorPath": "propertyinspector/index-leave.html"
     },
     {
       "States": [
@@ -100,7 +105,8 @@
       "Icon": "streamdeck-zoom-record-cloud-actionicon",
       "Name": "Cloud Record Toggle",
       "Tooltip": "Toggle Zoom Recording to the Cloud",
-      "UUID": "com.lostdomain.zoom.recordcloudtoggle"
+      "UUID": "com.lostdomain.zoom.recordcloudtoggle",
+      "PropertyInspectorPath": "propertyinspector/index-record-cloud.html"
     },
     {
       "States": [
@@ -118,7 +124,8 @@
       "Icon": "streamdeck-zoom-record-local-actionicon",
       "Name": "Local Record Toggle",
       "Tooltip": "Toggle Zoom Recording to your local computer",
-      "UUID": "com.lostdomain.zoom.recordlocaltoggle"
+      "UUID": "com.lostdomain.zoom.recordlocaltoggle",
+      "PropertyInspectorPath": "propertyinspector/index-record-local.html"
     },
     {
       "States": [
@@ -133,7 +140,8 @@
       "Icon": "streamdeck-zoom-unmuteall-actionicon",
       "Name": "Ask All to Unmute",
       "Tooltip": "Ask all participants to unmute",
-      "UUID": "com.lostdomain.zoom.unmuteall"
+      "UUID": "com.lostdomain.zoom.unmuteall",
+      "PropertyInspectorPath": "propertyinspector/index-unmute-all.html"
     },
     {
       "States": [
@@ -148,7 +156,8 @@
       "Icon": "streamdeck-zoom-muteall-actionicon",
       "Name": "Mute All Participants",
       "Tooltip": "Mute All Participants",
-      "UUID": "com.lostdomain.zoom.muteall"
+      "UUID": "com.lostdomain.zoom.muteall",
+      "PropertyInspectorPath": "propertyinspector/index-mute-all.html"
     }
   ],
   "CodePath": "sdzoomplugin.exe",
@@ -159,7 +168,6 @@
   "Name": "Zoom Plugin",
   "Category": "Zoom",
   "CategoryIcon": "video-camera",
-  "PropertyInspectorPath": "propertyinspector/index.html",
   "Icon": "video-camera-plugin",
   "Version": "${CMAKE_PROJECT_VERSION}",
   "OS": [

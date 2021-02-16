@@ -2,6 +2,30 @@
 #include "ZoomStreamDeckPlugin.h"
 #include <StreamDeckSDK/ESDLogger.h>
 
+extern std::string m_zoomMenuMeeting;
+extern std::string m_zoomMenuMuteAudio;
+extern std::string m_zoomMenuUnmuteAudio;
+
+extern std::string m_zoomMenuStartVideo;
+extern std::string m_zoomMenuStopVideo;
+
+extern std::string m_zoomMenuStartShare;
+extern std::string m_zoomMenuStopShare;
+
+extern std::string m_zoomMenuStartRecordToCloud;
+extern std::string m_zoomMenuStopRecordToCloud;
+
+extern std::string m_zoomMenuStartRecord;
+
+extern std::string m_zoomMenuStartRecordLocal;
+extern std::string m_zoomMenuStopRecordLocal;
+
+extern std::string m_zoomMenuWindow;
+extern std::string m_zoomMenuClose;
+
+extern std::string m_zoomMenuMuteAll;
+extern std::string m_zoomMenuUnmuteAll;
+
 char *execAndReturn(const char *command)
 {
   FILE *fp;
@@ -83,47 +107,57 @@ end tell
 do shell script "echo zoomMute:" & (muteStatus as text) & ",zoomVideo:" & (videoStatus as text) & ",zoomStatus:" & (zoomStatus as text) & ",zoomShare:" & (shareStatus as text) & ",zoomRecord:" & (recordStatus as text)
   */
   // ESDDebug("APPLESCRIPT_GET_STATUS: %s", APPLESCRIPT_GET_STATUS);
-  const char *appleScript = "set zoomStatus to \"closed\"\n"
-                            "set muteStatus to \"disabled\"\n"
-                            "set videoStatus to \"disabled\"\n"
-                            "set shareStatus to \"disabled\"\n"
-                            "set recordStatus to \"disabled\"\n"
-                            "set speakerViewStatus to \"disabled\"\n"
-                            "set minimalView to \"disabled\"\n"
-	                    "set appName to \"zoom.us\n\"
-                            "tell application \"System Events\"\n"
-                            "	if (get name of every application process) contains appName then\n"
-                            "		set zoomStatus to \"open\"\n"
-                            "		tell application process \"zoom.us\"\n"
-                            "			if exists (menu bar item \"Meeting\" of menu bar 1) then\n"
-                            "				set zoomStatus to \"call\"\n"
-                            "				if exists (menu item \"Mute audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                            "					set muteStatus to \"unmuted\"\n"
-                            "				else\n"
-                            "					set muteStatus to \"muted\"\n"
-                            "				end if\n"
-                            "				if exists (menu item \"Start Video\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                            "					set videoStatus to \"stopped\"\n"
-                            "				else\n"
-                            "					set videoStatus to \"started\"\n"
-                            "				end if\n"
-                            "				if exists (menu item \"Start Share\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                            "					set shareStatus to \"stopped\"\n"
-                            "				else\n"
-                            "					set shareStatus to \"started\"\n"
-                            "				end if\n"
-                            "				if exists (menu item \"Record to the Cloud\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                            "					set recordStatus to \"stopped\"\n"
-                            "				else if exists (menu item \"Record\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                            "					set recordStatus to \"stopped\"\n"
-                            "				else\n"
-                            "					set recordStatus to \"started\"\n"
-                            "				end if\n"
-                            "			end if\n"
-                            "		end tell\n"
-                            "	end if\n"
-                            "end tell\n"
-                            "do shell script \"echo zoomMute:\" & (muteStatus as text) & \",zoomVideo:\" & (videoStatus as text) & \",zoomStatus:\" & (zoomStatus as text) & \",zoomShare:\" & (shareStatus as text) & \",zoomRecord:\" & (recordStatus as text)";
+  const std::string appleScript = "set zoomStatus to \"closed\"\n"
+                                  "set muteStatus to \"disabled\"\n"
+                                  "set videoStatus to \"disabled\"\n"
+                                  "set shareStatus to \"disabled\"\n"
+                                  "set recordStatus to \"disabled\"\n"
+                                  "set speakerViewStatus to \"disabled\"\n"
+                                  "set minimalView to \"disabled\"\n"
+                                  "tell application \"System Events\"\n"
+                                  "	if (get name of every application process) contains \"zoom.us\" then\n"
+                                  "		set zoomStatus to \"open\"\n"
+                                  "		tell application process \"zoom.us\"\n"
+                                  "			if exists (menu bar item \"" +
+                                  m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                      "				set zoomStatus to \"call\"\n"
+                                                      "				if exists (menu item \"" +
+                                  m_zoomMenuMuteAudio + "\" of menu 1 of menu bar item \"" +
+                                  m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                      "					set muteStatus to \"unmuted\"\n"
+                                                      "				else\n"
+                                                      "					set muteStatus to \"muted\"\n"
+                                                      "				end if\n"
+                                                      "				if exists (menu item \"" +
+                                  m_zoomMenuStartVideo + "\" of menu 1 of menu bar item \"" +
+                                  m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                      "					set videoStatus to \"stopped\"\n"
+                                                      "				else\n"
+                                                      "					set videoStatus to \"started\"\n"
+                                                      "				end if\n"
+                                                      "				if exists (menu item \"" +
+                                  m_zoomMenuStartShare + "\" of menu 1 of menu bar item \"" +
+                                  m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                      "					set shareStatus to \"stopped\"\n"
+                                                      "				else\n"
+                                                      "					set shareStatus to \"started\"\n"
+                                                      "				end if\n"
+                                                      "				if exists (menu item \"" +
+                                  m_zoomMenuStartRecordToCloud + "\" of menu 1 of menu bar item \"" +
+                                  m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                      "					set recordStatus to \"stopped\"\n"
+                                                      "				else if exists (menu item \"" +
+                                  m_zoomMenuStartRecord + "\" of menu 1 of menu bar item \"" +
+                                  m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                      "					set recordStatus to \"stopped\"\n"
+                                                      "				else\n"
+                                                      "					set recordStatus to \"started\"\n"
+                                                      "				end if\n"
+                                                      "			end if\n"
+                                                      "		end tell\n"
+                                                      "	end if\n"
+                                                      "end tell\n"
+                                                      "do shell script \"echo zoomMute:\" & (muteStatus as text) & \",zoomVideo:\" & (videoStatus as text) & \",zoomStatus:\" & (zoomStatus as text) & \",zoomShare:\" & (shareStatus as text) & \",zoomRecord:\" & (recordStatus as text)";
 
   std::string cmd = "osascript -e '";
   cmd.append(appleScript);
@@ -135,129 +169,164 @@ do shell script "echo zoomMute:" & (muteStatus as text) & ",zoomVideo:" & (video
 
 void osToggleZoomMute()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Unmute Audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Unmute Audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else\n"
-                       "      click (menu item \"Mute Audio\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuUnmuteAudio + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                              "      click (menu item \"" +
+                             m_zoomMenuUnmuteAudio + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                              "    else\n"
+                                                                                                              "      click (menu item \"" +
+                             m_zoomMenuMuteAudio + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                            "    end if\n"
+                                                                                                            "  end tell\n"
+                                                                                                            "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 
 void osToggleZoomShare()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Start Share\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Start Share\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else\n"
-                       "      click (menu item \"Stop Share\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuStartShare + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                             "      click (menu item \"" +
+                             m_zoomMenuStartShare + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                             "    else\n"
+                                                                                                             "      click (menu item \"" +
+                             m_zoomMenuStopShare + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                            "    end if\n"
+                                                                                                            "  end tell\n"
+                                                                                                            "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 
 void osToggleZoomVideo()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Start Video\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Start Video\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else\n"
-                       "      click (menu item \"Stop Video\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuStartVideo + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                             "      click (menu item \"" +
+                             m_zoomMenuStartVideo + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                             "    else\n"
+                                                                                                             "      click (menu item \"" +
+                             m_zoomMenuStopVideo + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                            "    end if\n"
+                                                                                                            "  end tell\n"
+                                                                                                            "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 
 void osLeaveZoomMeeting()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"System Events\"\n"
-                       " if exists (menu bar item \"Meeting\" of menu bar 1 of application process \"zoom.us\") then\n"
-                       "   tell application \"zoom.us\" to activate\n"
-                       "   keystroke \"w\" using {command down}\n"
-                       "   tell front window of (first application process whose frontmost is true)\n"
-                       "     click button 1\n"
-                       "   end tell\n"
-                       " end if\n"
-                       "end tell'";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\" to activate\n"
+                             "tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "	if exists (menu bar item \"" +
+                             m_zoomMenuWindow + "\" of menu bar 1) then\n"
+                                                "		click (menu item \"" +
+                             m_zoomMenuClose + "\" of menu 1 of menu bar item \"" + m_zoomMenuWindow + "\" of menu bar 1)\n"
+                                                                                                       "		delay 0.5\n"
+                                                                                                       "		click button 1 of window 1\n"
+                                                                                                       "	end if\n"
+                                                                                                       "end tell'";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 
 void osFocusZoomWindow()
 {
   const char *script = "osascript -e 'tell application \"zoom.us\"\nactivate\nend tell'";
+  //ESDDebug(script);
   system(script);
 }
 
 void osToggleZoomRecordCloud()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Record to the Cloud\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Record to the Cloud\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else if exists (menu item \"Record\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Record\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else\n"
-                       "      click (menu item \"Stop Recording\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuStartRecordToCloud + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                                     "      click (menu item \"" +
+                             m_zoomMenuStartRecordToCloud + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                                     "    else if exists (menu item \"" +
+                             m_zoomMenuStartRecord + "\" of menu 1 of menu bar item \"" +
+                             m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                 "      click (menu item \"" +
+                             m_zoomMenuStartRecord + "\" of menu 1 of menu bar item \"" +
+                             m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                 "    else\n"
+                                                 "      click (menu item \"" +
+                             m_zoomMenuStopRecordToCloud + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                                    "    end if\n"
+                                                                                                                    "  end tell\n"
+                                                                                                                    "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 
 void osToggleZoomRecordLocal()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Record on this Computer\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Record on this Computer\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else if exists (menu item \"Record\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Record\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    else\n"
-                       "      click (menu item \"Stop Recording\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuStartRecordLocal + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                                   "      click (menu item \"" +
+                             m_zoomMenuStartRecordLocal + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                                   "    else if exists (menu item \"" +
+                             m_zoomMenuStartRecord + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                              "      click (menu item \"" +
+                             m_zoomMenuStartRecordLocal + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                                   "    else\n"
+                                                                                                                   "      click (menu item \"" +
+                             m_zoomMenuStopRecordLocal + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                                  "    end if\n"
+                                                                                                                  "  end tell\n"
+                                                                                                                  "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 
 void osMuteAll()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Mute All\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Mute All\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "      activate\n"
-                       "      set frontmost to true\n"
-                       "      delay 0.5\n"
-                       "      keystroke return\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuMuteAll + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                          "      click (menu item \"" +
+                             m_zoomMenuMuteAll + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                          "      activate\n"
+                                                                                                          "      set frontmost to true\n"
+                                                                                                          "      delay 0.5\n"
+                                                                                                          "      keystroke return\n"
+                                                                                                          "    end if\n"
+                                                                                                          "  end tell\n"
+                                                                                                          "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
 void osUnmuteAll()
 {
-  const char *script = "osascript -e '"
-                       "tell application \"zoom.us\"\n"
-                       "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
-                       "    if exists (menu item \"Ask All To Unmute\" of menu 1 of menu bar item \"Meeting\" of menu bar 1) then\n"
-                       "      click (menu item \"Ask All To Unmute\" of menu 1 of menu bar item \"Meeting\" of menu bar 1)\n"
-                       "    end if\n"
-                       "  end tell\n"
-                       "end tell'\n";
-  system(script);
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (menu item \"" +
+                             m_zoomMenuUnmuteAll + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1) then\n"
+                                                                                                            "      click (menu item \"" +
+                             m_zoomMenuUnmuteAll + "\" of menu 1 of menu bar item \"" + m_zoomMenuMeeting + "\" of menu bar 1)\n"
+                                                                                                            "    end if\n"
+                                                                                                            "  end tell\n"
+                                                                                                            "end tell'\n";
+  //ESDDebug(script.c_str());
+  system(script.c_str());
 }
