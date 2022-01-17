@@ -2,6 +2,8 @@
 #include "ZoomStreamDeckPlugin.h"
 #include <StreamDeckSDK/ESDLogger.h>
 
+extern std::string m_zoomWindowMeeting;
+
 extern std::string m_zoomMenuMeeting;
 extern std::string m_zoomMenuMuteAudio;
 extern std::string m_zoomMenuUnmuteAudio;
@@ -25,6 +27,11 @@ extern std::string m_zoomMenuClose;
 
 extern std::string m_zoomMenuMuteAll;
 extern std::string m_zoomMenuUnmuteAll;
+
+extern std::string m_zoomButtonRaiseLowerHand;
+extern std::string m_zoomButtonRaiseHand;
+extern std::string m_zoomButtonLowerHand;
+
 
 char *execAndReturn(const char *command)
 {
@@ -112,12 +119,22 @@ do shell script "echo zoomMute:" & (muteStatus as text) & ",zoomVideo:" & (video
                                   "set videoStatus to \"disabled\"\n"
                                   "set shareStatus to \"disabled\"\n"
                                   "set recordStatus to \"disabled\"\n"
+                                  "set handStatus to \"disabled\"\n"
                                   "set speakerViewStatus to \"disabled\"\n"
                                   "set minimalView to \"disabled\"\n"
                                   "tell application \"System Events\"\n"
                                   "	if (get name of every application process) contains \"zoom.us\" then\n"
                                   "		set zoomStatus to \"open\"\n"
                                   "		tell application process \"zoom.us\"\n"
+                                  "  		if exists (button " +
+                                  m_zoomButtonRaiseLowerHand + " of window \"Zoom Meeting\") then\n"
+                                  "       if (get description of button " +
+                                  m_zoomButtonRaiseLowerHand + " of window \"Zoom Meeting\" = \"Raise Hand\") then\n"
+	                                "         set handStatus to \"lowered\"\n"
+                                  "       else\n"
+                                  "         set handStatus to \"raised\"\n"
+                                  "       end if\n"
+                                  "     end if\n"
                                   "			if exists (menu bar item \"" +
                                   m_zoomMenuMeeting + "\" of menu bar 1) then\n"
                                                       "				set zoomStatus to \"call\"\n"
@@ -157,7 +174,7 @@ do shell script "echo zoomMute:" & (muteStatus as text) & ",zoomVideo:" & (video
                                                       "		end tell\n"
                                                       "	end if\n"
                                                       "end tell\n"
-                                                      "do shell script \"echo zoomMute:\" & (muteStatus as text) & \",zoomVideo:\" & (videoStatus as text) & \",zoomStatus:\" & (zoomStatus as text) & \",zoomShare:\" & (shareStatus as text) & \",zoomRecord:\" & (recordStatus as text)";
+                                                      "do shell script \"echo zoomMute:\" & (muteStatus as text) & \",zoomVideo:\" & (videoStatus as text) & \",zoomStatus:\" & (zoomStatus as text) & \",zoomShare:\" & (shareStatus as text) & \",zoomRecord:\" & (recordStatus as text) & \",zoomHand:\" & (handStatus as text)";
 
   std::string cmd = "osascript -e '";
   cmd.append(appleScript);
@@ -331,6 +348,21 @@ void osUnmuteAll()
   system(script.c_str());
 }
 
+void osToggleZoomHand()
+{
+  const std::string script = "osascript -e '"
+                             "tell application \"zoom.us\"\n"
+                             "  tell application \"System Events\" to tell application process \"zoom.us\"\n"
+                             "    if exists (button " +
+                             m_zoomButtonRaiseLowerHand + " of window \"" + m_zoomWindowMeeting + "\") then\n"
+                                                                                                    "      click (button " +
+                             m_zoomButtonRaiseLowerHand + " of window \"" + m_zoomWindowMeeting + "\")\n" +
+                                                                                                    "    end if\n"
+                                                                                                    "  end tell\n"
+                                                                                                    "end tell'\n";
+  ESDDebug(script.c_str());
+  system(script.c_str());
+}
 
 void osZoomCustomShortcut(std::string shortcut)
 {

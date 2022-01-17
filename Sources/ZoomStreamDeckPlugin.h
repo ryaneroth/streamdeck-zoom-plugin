@@ -17,6 +17,7 @@ void osLeaveZoomMeeting();
 void osFocusZoomWindow();
 void osToggleZoomRecordCloud();
 void osToggleZoomRecordLocal();
+void osToggleZoomHand();
 void osMuteAll();
 void osUnmuteAll();
 void osZoomCustomShortcut(std::string shortcut);

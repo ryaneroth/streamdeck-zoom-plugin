@@ -20,6 +20,10 @@
 #define MUTEALL_ACTION_ID "com.lostdomain.zoom.muteall"
 #define UNMUTEALL_ACTION_ID "com.lostdomain.zoom.unmuteall"
 #define CUSTOMSHORTCUT_ACTION_ID "com.lostdomain.zoom.customshortcut"
+#define HANDTOGGLE_ACTION_ID "com.lostdomain.zoom.raisehandtoggle"
+
+
+std::string m_zoomWindowMeeting = "Zoom Meeting";
 
 std::string m_zoomMenuMeeting = "Meeting";
 std::string m_zoomMenuMuteAudio = "Mute audio";
@@ -42,6 +46,10 @@ std::string m_zoomMenuClose = "Close";
 
 std::string m_zoomMenuMuteAll = "Mute All";
 std::string m_zoomMenuUnmuteAll = "Ask All To Unmute";
+
+std::string m_zoomButtonRaiseLowerHand = "13";
+std::string m_zoomButtonRaiseHand = "Raise Hand";
+std::string m_zoomButtonLowerHand = "Lower Hand";
 
 class CallBackTimer
 {
@@ -98,6 +106,7 @@ json getZoomStatus()
   std::string statusShare;
   std::string statusZoom;
   std::string statusRecord;
+  std::string statusHand;
   std::string statusMuteAll = "enabled";
   std::string statusUnmuteAll = "enabled";
 
@@ -127,6 +136,7 @@ json getZoomStatus()
     statusRecord = "disabled";
     statusMuteAll = "disabled";
     statusUnmuteAll = "disabled";
+    statusHand = "disabled";
   }
   else
   {
@@ -174,6 +184,16 @@ json getZoomStatus()
       //ESDDebug("Zoom Record Stopped!");
       statusRecord = "stopped";
     }
+    if (status.find("zoomHand:raised") != std::string::npos)
+    {
+      //ESDDebug("Zoom Hand Lowered!");
+      statusHand = "lowered";
+    }
+    else if (status.find("zoomHand:lowered") != std::string::npos)
+    {
+      //ESDDebug("Zoom Hand Raised!");
+      statusHand = "raised";
+    }
   }
 
   //ESDDebug("Zoom status: %s", status.c_str());
@@ -182,6 +202,7 @@ json getZoomStatus()
                {"statusMute", statusMute},
                {"statusVideo", statusVideo},
                {"statusRecord", statusRecord},
+               {"statusHand", statusHand},
                {"statusShare", statusShare},
                {"statusMuteAll", statusMuteAll},
                {"statusUnmuteAll", statusUnmuteAll}});
@@ -221,6 +242,7 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus()
     auto newFocusState = 1;
     auto newMuteAllState = 1;
     auto newUnmuteAllState = 1;
+    auto newHandState = 2;
 
     // set mute, video, sharing, and focus to disabled when Zoom is closed
     if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "closed")
@@ -233,6 +255,7 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus()
       newRecordState = 2;
       newMuteAllState = 1;
       newUnmuteAllState = 1;
+      newHandState = 2;
     }
     else if (EPLJSONUtils::GetStringByName(newStatus, "statusZoom") == "open")
     {
@@ -283,7 +306,16 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus()
         //ESDDebug("CURRENT: Zoom record started");
         newRecordState = 1;
       }
-
+      if (EPLJSONUtils::GetStringByName(newStatus, "statusHand") == "lowered")
+      {
+        //ESDDebug("CURRENT: Zoom record stopped");
+        newHandState = 1;
+      }
+      else if (EPLJSONUtils::GetStringByName(newStatus, "statusHand") == "raised")
+      {
+        //ESDDebug("CURRENT: Zoom record started");
+        newHandState = 0;
+      }
       // in a call, always have leave, focus, mute all and unmute all enabled
       newLeaveState = 0;
       newFocusState = 0;
@@ -307,6 +339,15 @@ void ZoomStreamDeckPlugin::UpdateZoomStatus()
       const auto button = mButtons[VIDEOTOGGLE_ACTION_ID];
       // ESDDebug("Video button context: %s", button.context.c_str());
       mConnectionManager->SetState(newVideoState, button.context);
+    }
+
+    // sanity check - is the button added?
+    if (mButtons.count(HANDTOGGLE_ACTION_ID))
+    {
+      // update video button
+      const auto button = mButtons[HANDTOGGLE_ACTION_ID];
+      // ESDDebug("Video button context: %s", button.context.c_str());
+      mConnectionManager->SetState(newHandState, button.context);
     }
 
     // sanity check - is the button added?
@@ -492,6 +533,35 @@ void ZoomStreamDeckPlugin::KeyUpForAction(
     }
 
     osToggleZoomVideo();
+    updateStatus = true;
+  }
+  else if (inAction == HANDTOGGLE_ACTION_ID)
+  {
+    std::string zoomWindowMeeting = EPLJSONUtils::GetStringByName(jsonSettings, "zoomWindowMeeting");
+    std::string zoomButtonRaiseHand = EPLJSONUtils::GetStringByName(jsonSettings, "zoomButtonRaiseHand");
+    std::string zoomButtonLowerHand = EPLJSONUtils::GetStringByName(jsonSettings, "zoomButtonLowerHand");
+
+    if (!zoomWindowMeeting.empty())
+      m_zoomWindowMeeting = zoomWindowMeeting;
+
+    if (!zoomButtonRaiseHand.empty())
+      m_zoomButtonRaiseHand = zoomButtonRaiseHand;
+
+    if (!zoomButtonLowerHand.empty())
+      m_zoomButtonLowerHand = zoomButtonLowerHand;
+
+    // state == 0 == want to be with video on
+    if (state != 0)
+    {
+      ESDDebug("Raising Zoom Hand!");
+    }
+    // state == 1 == want to be with video off
+    else
+    {
+      ESDDebug("Lowering Zoom Hand!");
+    }
+
+    osToggleZoomHand();
     updateStatus = true;
   }
   // focus on Zoom window
