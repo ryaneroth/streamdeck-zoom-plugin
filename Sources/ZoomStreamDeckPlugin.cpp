@@ -8,6 +8,7 @@
 #include <atomic>
 #include <iostream>
 #include <mutex>
+#include <regex>
 #include <vector>
 
 #define MUTETOGGLE_ACTION_ID "com.lostdomain.zoom.mutetoggle"
@@ -47,7 +48,7 @@ std::string m_zoomMenuClose = "Close";
 std::string m_zoomMenuMuteAll = "Mute All";
 std::string m_zoomMenuUnmuteAll = "Ask All To Unmute";
 
-std::string m_zoomButtonRaiseLowerHand = "13";
+std::string m_zoomButtonRaiseLowerHand = "0";
 std::string m_zoomButtonRaiseHand = "Raise Hand";
 std::string m_zoomButtonLowerHand = "Lower Hand";
 
@@ -193,6 +194,13 @@ json getZoomStatus()
     {
       //ESDDebug("Zoom Hand Raised!");
       statusHand = "raised";
+    }
+    if (status.find("buttonRaiseLowerHand") != std::string::npos)
+    {
+      std::regex regexp("buttonRaiseLowerHand:([0-9]+)"); 
+      std::smatch match; 
+      std::regex_search(status, match, regexp); 
+      m_zoomButtonRaiseLowerHand = match[1];
     }
   }
 

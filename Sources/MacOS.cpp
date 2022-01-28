@@ -2,6 +2,7 @@
 #include "ZoomStreamDeckPlugin.h"
 #include <StreamDeckSDK/ESDLogger.h>
 
+
 extern std::string m_zoomWindowMeeting;
 
 extern std::string m_zoomMenuMeeting;
@@ -122,14 +123,21 @@ do shell script "echo zoomMute:" & (muteStatus as text) & ",zoomVideo:" & (video
                                   "set handStatus to \"disabled\"\n"
                                   "set speakerViewStatus to \"disabled\"\n"
                                   "set minimalView to \"disabled\"\n"
+                                  "set buttonRaiseLowerHand to \"disabled\"\n"
                                   "tell application \"System Events\"\n"
                                   "	if (get name of every application process) contains \"zoom.us\" then\n"
                                   "		set zoomStatus to \"open\"\n"
                                   "		tell application process \"zoom.us\"\n"
-                                  "  		if exists (button " +
-                                  m_zoomButtonRaiseLowerHand + " of window \"Zoom Meeting\") then\n"
-                                  "       if (get description of button " +
-                                  m_zoomButtonRaiseLowerHand + " of window \"Zoom Meeting\" = \"Raise Hand\") then\n"
+                                  "   set buttonList to (every button) of window \"Zoom Meeting\"\n"
+                                  "   repeat with index from 1 to count of buttonList\n"
+                                  "     if (get description of button index of window \"Zoom Meeting\" = \"Raise Hand\") then\n"
+                                  "       set buttonRaiseLowerHand to index\n"
+                                  "     else if (get description of button index of window \"Zoom Meeting\" = \"Lower Hand\") then\n"
+                                  "       set buttonRaiseLowerHand to index\n"
+                                  "     end if\n"
+                                  "   end repeat\n"
+                                  "  		if exists (button buttonRaiseLowerHand of window \"Zoom Meeting\") then\n"
+                                  "       if (get description of button buttonRaiseLowerHand of window \"Zoom Meeting\" = \"Raise Hand\") then\n"
 	                                "         set handStatus to \"lowered\"\n"
                                   "       else\n"
                                   "         set handStatus to \"raised\"\n"
@@ -174,13 +182,11 @@ do shell script "echo zoomMute:" & (muteStatus as text) & ",zoomVideo:" & (video
                                                       "		end tell\n"
                                                       "	end if\n"
                                                       "end tell\n"
-                                                      "do shell script \"echo zoomMute:\" & (muteStatus as text) & \",zoomVideo:\" & (videoStatus as text) & \",zoomStatus:\" & (zoomStatus as text) & \",zoomShare:\" & (shareStatus as text) & \",zoomRecord:\" & (recordStatus as text) & \",zoomHand:\" & (handStatus as text)";
-
+                                                      "do shell script \"echo zoomMute:\" & (muteStatus as text) & \",zoomVideo:\" & (videoStatus as text) & \",zoomStatus:\" & (zoomStatus as text) & \",zoomShare:\" & (shareStatus as text) & \",zoomRecord:\" & (recordStatus as text) & \",zoomHand:\" & (handStatus as text) & \",buttonRaiseLowerHand:\" & (buttonRaiseLowerHand as text)";
   std::string cmd = "osascript -e '";
   cmd.append(appleScript);
   cmd.append("'");
   char *zoomStatus = execAndReturn(cmd.c_str());
-
   return std::string(zoomStatus);
 }
 
@@ -360,7 +366,7 @@ void osToggleZoomHand()
                                                                                                     "    end if\n"
                                                                                                     "  end tell\n"
                                                                                                     "end tell'\n";
-  ESDDebug(script.c_str());
+  //ESDDebug(script.c_str());
   system(script.c_str());
 }
 
